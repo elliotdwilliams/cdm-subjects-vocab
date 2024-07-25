@@ -1,11 +1,22 @@
+"""Queries the CONTENTdm Server API to get all controlled vocabularies for fields named 'Subject'
+
+Makes three types of API calls: first, to get a list of all collections on the server; second,
+to get the field nickname for the "Subject" field; third, to get the controlled vocab for that
+field. Saves output to a file called "all-CDM-subjects.txt".
+"""
+
 import requests
 
 # Set base URL to CONTENTdm website URL
 BASE_URL = "https://digital.utsa.edu"
 
+
 def get_aliases():
+    """Queries API to get all collection aliases on server"""
+
     # Make an API request to get collection list
-    collection_list_url = BASE_URL + "/digital/bl/dmwebservices/index.php?q=dmGetCollectionList/json"
+    collection_list_url = (BASE_URL +
+                           "/digital/bl/dmwebservices/index.php?q=dmGetCollectionList/json")
     collection_response = requests.get(collection_list_url, timeout=5)
 
     # Create an empty list to hold collection aliases
@@ -17,9 +28,12 @@ def get_aliases():
         alias_list.append(alias)
 
     #print(alias_list)
-    return(alias_list)
+    return alias_list
+
 
 def get_nicknames(alias_list):
+    """For each collection, queries API to get the field nickname for "Subject" field"""
+
     # Create empty list for collection alias/field nickname pairs
     subject_nicknames = []
 
@@ -28,10 +42,12 @@ def get_nicknames(alias_list):
 
     # Loop through list of alias and request field info
     for alias in alias_list:
-        field_list_url = BASE_URL + "/digital/bl/dmwebservices/index.php?q=dmGetCollectionFieldInfo/" + alias + "/json"
+        field_list_url = (BASE_URL +
+                          "/digital/bl/dmwebservices/index.php?q=dmGetCollectionFieldInfo/" +
+                          alias + "/json")
         field_response = requests.get(field_list_url, timeout=5)
 
-        # For fields in the collection, look for field where name is "Subject" and get field nickname
+        # Look for field where name is "Subject" and get field nickname
         for field in field_response.json():
             name = field["name"]
             nick = field["nick"]
@@ -43,12 +59,15 @@ def get_nicknames(alias_list):
                 subject_nicknames.append(pair)
 
     print(subject_nicknames)
-    return(subject_nicknames)
+    return subject_nicknames
+
 
 def get_subjects(subject_nicknames):
+    """For each collection, queries API to get subject controlled vocabulary"""
+
     # Create empty list for term/collection pairs
     subjects_combined = []
-    
+
     for collection in subject_nicknames:
         #alias, nickname = collection.split(',')
         alias = collection[0]
@@ -56,7 +75,9 @@ def get_subjects(subject_nicknames):
         #print(alias + " " + nickname)
 
         # Make an API request to get collection list
-        subject_url = BASE_URL + "/digital/bl/dmwebservices/index.php?q=dmGetCollectionFieldVocabulary/" + alias + "/" + nickname + "/json"
+        subject_url = (BASE_URL +
+                       "/digital/bl/dmwebservices/index.php?q=dmGetCollectionFieldVocabulary/" +
+                       alias + "/" + nickname + "/json")
         collection_subjects = requests.get(subject_url, timeout=5)
 
         # Loop through subject list and add to term/collection pair list
@@ -66,7 +87,8 @@ def get_subjects(subject_nicknames):
             subjects_combined.append(pair)
 
     #print(subjects_combined)
-    return(subjects_combined)
+    return subjects_combined
+
 
 def main():
 
@@ -79,6 +101,7 @@ def main():
     with open(file_name, mode="w", encoding="utf-8") as f:
         for pair in subjects_combined:
             f.write(str(pair[1]) + "\t" + str(pair[0]) + "\n")
+
 
 if __name__ == "__main__":
     main()
