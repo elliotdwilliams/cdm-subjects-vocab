@@ -10,6 +10,8 @@ import requests
 # Set base URL to CONTENTdm website URL
 BASE_URL = "https://digital.utsa.edu"
 
+# Define field to look for nickname of
+FIELD_NAME = "Subject"
 
 def get_aliases():
     """Queries API to get all collection aliases on server"""
@@ -37,9 +39,6 @@ def get_nicknames(alias_list):
     # Create empty list for collection alias/field nickname pairs
     subject_nicknames = []
 
-    # Define field to look for nickname of
-    field_name = "Subject"
-
     # Loop through list of alias and request field info
     for alias in alias_list:
         field_list_url = (BASE_URL +
@@ -54,7 +53,7 @@ def get_nicknames(alias_list):
             #print(name)
 
             # Add Subject field nickname and collection alias to subject_nicknames
-            if name == field_name:
+            if name == FIELD_NAME:
                 pair = [alias, nick]
                 subject_nicknames.append(pair)
 
