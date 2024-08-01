@@ -1,4 +1,4 @@
-# cdm-subjects-vocab
+# cdm-subject-vocabs
 
 Python script for downloading controlled vocabularies for the Subject field for all collections on a CONTENTdm site.
 
